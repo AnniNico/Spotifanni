@@ -24,7 +24,7 @@ public class MyXMLManager {
     private String text;
 
     public MyXMLManager() {
-        playlists = new ArrayList<Playlist>();
+        playlists = new ArrayList<>();
     }
 
     public ArrayList<Playlist> getPlaylists() {
@@ -36,13 +36,12 @@ public class MyXMLManager {
     }
 
     public ArrayList<Playlist> parse(InputStream is) {
-        XmlPullParserFactory factory = null;
-        XmlPullParser parser = null;
+
         VideoItem song = new VideoItem();
         try {
-            factory = XmlPullParserFactory.newInstance();
+            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
             factory.setNamespaceAware(true);
-            parser = factory.newPullParser();
+            XmlPullParser parser = factory.newPullParser();
 
             parser.setInput(is, null);
 
@@ -94,10 +93,10 @@ public class MyXMLManager {
                 eventType = parser.next();
             }
 
+        }  catch (IOException e) {
+            e.printStackTrace();
         } catch (XmlPullParserException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
 
         return playlists;

@@ -1,6 +1,7 @@
 package com.example.android.spotifanni;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -73,13 +74,7 @@ public class MainActivity extends AppCompatActivity
                 playingPlaylist = p;
             }
         }
-        if (songs == null)
-            songs = playlists.get(0).getSongs();
 
-        /*final VideoAdapter adapter = new VideoAdapter(this, R.layout.song_item, songs);
-        lv.setAdapter(adapter);
-        TextView title = (TextView) findViewById(R.id.currentPlaylistTitle);
-        title.setText(R.string.favourite_songs);*/
         reloadVideoList(this, playingPlaylist);
 
     }
@@ -151,10 +146,10 @@ public class MainActivity extends AppCompatActivity
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-        ArrayList<VideoAdapter> songs = new ArrayList<VideoAdapter>();
+        ArrayList<VideoAdapter> songs = new ArrayList<>();
         Playlist playlist;
         if (id == R.id.favourites)
             playlist = playlists.get(0);

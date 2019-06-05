@@ -29,8 +29,8 @@ import java.util.List;
                 super(v);
                 titleView= (TextView) itemView.findViewById(R.id.title_id);
                 iconView= (ImageView) itemView.findViewById(R.id.icon_id);
-                addView= (ImageView) itemView.findViewById(R.id.icon_id);
-                orderView= (ImageView) itemView.findViewById(R.id.icon_id);
+                addView= (ImageView) itemView.findViewById(R.id.add_id);
+                orderView= (ImageView) itemView.findViewById(R.id.order_id);
             }
         }
 
@@ -47,8 +47,7 @@ import java.util.List;
             View v = (View) LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.video_item, parent, false);
 
-            MyViewHolder vh = new MyViewHolder(v);
-            return vh;
+            return new MyViewHolder(v);
         }
 
         // Replace the contents of a view (invoked by the layout manager)
