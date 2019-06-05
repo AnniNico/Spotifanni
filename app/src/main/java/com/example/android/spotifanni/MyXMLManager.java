@@ -17,7 +17,7 @@ import java.util.ArrayList;
  * Created by nicolo.mandrile on 24/05/2019.
  */
 
-public class MyXMLManager  {
+public class MyXMLManager {
 
     ArrayList<Playlist> playlists;
     private Playlist playlist;
@@ -31,14 +31,14 @@ public class MyXMLManager  {
         return playlists;
     }
 
-    public void setPlaylists(ArrayList<Playlist> playlists){
+    public void setPlaylists(ArrayList<Playlist> playlists) {
         this.playlists = playlists;
     }
 
     public ArrayList<Playlist> parse(InputStream is) {
         XmlPullParserFactory factory = null;
         XmlPullParser parser = null;
-        Song song = new Song();
+        VideoItem song = new VideoItem();
         try {
             factory = XmlPullParserFactory.newInstance();
             factory.setNamespaceAware(true);
@@ -54,12 +54,12 @@ public class MyXMLManager  {
                         if (tagname.equalsIgnoreCase("Playlist")) {
                             // create a new instance of employee
                             playlist = new Playlist();
-                            playlist.setSongs(new ArrayList<Song>());
+                            playlist.setSongs(new ArrayList<VideoItem>());
                             playlists.add(playlist);
                         } else if (tagname.equalsIgnoreCase("Songs")) {
-                            playlist.setSongs(new ArrayList<Song>());
+                            playlist.setSongs(new ArrayList<VideoItem>());
                         } else if (tagname.equalsIgnoreCase("Song")) {
-                            song = new Song();
+                            song = new VideoItem();
                             playlist.getSongs().add(song);
                         }
                         break;
@@ -69,29 +69,23 @@ public class MyXMLManager  {
                         break;
 
                     case XmlPullParser.END_TAG:
-                        if(text!=null)
-                        if (tagname.equalsIgnoreCase("PlaylistName")) {
-                            playlist.setName(text);
-                        } else if (tagname.equalsIgnoreCase("PlayListOrder")) {
-                            playlist.setOrder(Integer.parseInt(text));
-                        } else if (tagname.equalsIgnoreCase("PlayListPlaying")) {
-                            playlist.setPlaying(new Boolean(text));
-                        }
-                        else if (tagname.equalsIgnoreCase("Title")) {
-                           if(song!=null) song.setTitle(text);
-                        }
-                        else if (tagname.equalsIgnoreCase("Author")) {
-                            song.setAuthor(text);
-                        }
-                        else if (tagname.equalsIgnoreCase("Url")) {
-                            song.setUrl(text);
-                        }
-                        else if (tagname.equalsIgnoreCase("Order")) {
-                            song.setOrder(new Integer(text));
-                        }
-                        else if (tagname.equalsIgnoreCase("Playing")) {
-                            song.setPlaying(new Boolean(text));
-                        }
+                        if (text != null)
+                            if (tagname.equalsIgnoreCase("PlaylistName")) {
+                                playlist.setName(text);
+                            } else if (tagname.equalsIgnoreCase("PlayListOrder")) {
+                                playlist.setOrder(Integer.parseInt(text));
+                            } else if (tagname.equalsIgnoreCase("PlayListPlaying")) {
+                                playlist.setPlaying(Boolean.valueOf(text));
+                            } else if (tagname.equalsIgnoreCase("Title")) {
+                                if (song != null)
+                                    song.setTitle(text);
+                            } else if (tagname.equalsIgnoreCase("Url")) {
+                                song.setThumbnailURL(text);
+                            } else if (tagname.equalsIgnoreCase("Order")) {
+                                song.setOrder(Integer.valueOf(text));
+                            } else if (tagname.equalsIgnoreCase("Playing")) {
+                                song.setPlaying(Boolean.valueOf(text));
+                            }
                         break;
 
                     default:
@@ -110,8 +104,7 @@ public class MyXMLManager  {
     }
 
 
-
-    public void writeXml(File file, ArrayList<Playlist> playlists){
+    public void writeXml(File file, ArrayList<Playlist> playlists) {
         FileOutputStream fos;
         try {
 
@@ -119,11 +112,11 @@ public class MyXMLManager  {
 
             XmlSerializer serializer = Xml.newSerializer();
             serializer.setOutput(fos, "UTF-8");
-            serializer.startDocument(null, Boolean.valueOf(true));
+            serializer.startDocument(null, true);
             serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
 
             serializer.startTag(null, "Playlists");
-            for(Playlist p : playlists) {
+            for (Playlist p : playlists) {
                 serializer.startTag(null, "Playlist");
                 serializer.startTag(null, "PlaylistName");
                 serializer.text("" + p.getName());
@@ -135,16 +128,13 @@ public class MyXMLManager  {
                 serializer.text("" + p.getOrder());
                 serializer.endTag(null, "PlayListOrder");
 
-                for (Song song : p.getSongs()) {
+                for (VideoItem song : p.getSongs()) {
                     serializer.startTag(null, "Song");
                     serializer.startTag(null, "Title");
                     serializer.text(song.getTitle());
                     serializer.endTag(null, "Title");
-                    serializer.startTag(null, "Author");
-                    serializer.text(song.getAuthor());
-                    serializer.endTag(null, "Author");
                     serializer.startTag(null, "Url");
-                    serializer.text(song.getUrl());
+                    serializer.text(song.getThumbnailURL());
                     serializer.endTag(null, "Url");
                     serializer.startTag(null, "Playing");
                     serializer.text("" + song.isPlaying());
@@ -153,7 +143,7 @@ public class MyXMLManager  {
                     serializer.text("" + song.getOrder());
                     serializer.endTag(null, "Order");
                     serializer.startTag(null, "SongId");
-                    serializer.text("" + song.getSongId());
+                    serializer.text("" + song.getId());
                     serializer.endTag(null, "SongId");
                     serializer.endTag(null, "Song");
                 }
@@ -167,8 +157,7 @@ public class MyXMLManager  {
             serializer.flush();
 
             fos.close();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

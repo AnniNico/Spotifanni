@@ -7,21 +7,21 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by nicolo.mandrile on 24/05/2019.
  */
 
-public class SongAdapter extends ArrayAdapter<Song> {
+public class VideoAdapter extends ArrayAdapter<VideoItem> {
 
-    public SongAdapter(Context context, int resource, ArrayList<Song> songs) {
-        super(context, resource, songs);
+    public VideoAdapter(Context context, int resource, List<VideoItem> videos) {
+        super(context, resource, videos);
     }
 
     @Override
-    public void add(Song song) {
-        this.add(song);
+    public void add(VideoItem video) {
+        this.add(video);
     }
 
     @Override
@@ -29,10 +29,9 @@ public class SongAdapter extends ArrayAdapter<Song> {
         LayoutInflater inflater = (LayoutInflater) getContext()
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         convertView = inflater.inflate(R.layout.song_item, null);
-        TextView songTitle = (TextView)convertView.findViewById(R.id.songItemTitle);
-        songTitle.setText(getItem(position).getTitle());
-        TextView author = (TextView)convertView.findViewById(R.id.songItemAuthor);
-        author.setText(getItem(position).getAuthor());
+        TextView title = (TextView)convertView.findViewById(R.id.songItemTitle);
+        title.setText(getItem(position).getTitle());
+
         return convertView;
     }
 }

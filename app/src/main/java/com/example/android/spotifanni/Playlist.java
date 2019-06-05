@@ -9,11 +9,11 @@ import java.util.ArrayList;
 public class Playlist {
 
     private String name;
-    private ArrayList<Song> songs;
+    private ArrayList<VideoItem> songs;
     private boolean playing;
     private int order;
 
-    public Playlist(String name,  ArrayList<Song> songs) {
+    public Playlist(String name,  ArrayList<VideoItem> songs) {
         this.name = name;
         this.songs = songs;
     }
@@ -31,11 +31,11 @@ public class Playlist {
         this.name = name;
     }
 
-    public ArrayList<Song> getSongs() {
+    public ArrayList<VideoItem> getSongs() {
         return songs;
     }
 
-    public void setSongs(ArrayList<Song> songs) {
+    public void setSongs(ArrayList<VideoItem> songs) {
         this.songs = songs;
     }
 
