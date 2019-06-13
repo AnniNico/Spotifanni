@@ -17,4 +17,5 @@ public class Config {
     public static final String SHA1 = "BC:E4:B6:B5:5E:26:C0:0F:EB:A5:F4:C1:B7:F9:65:33:97:CE:A2:27";
 
     public static final String APP_NAME = "SpotifAnni";
+    public static final String FAVOURITE_SONGS = "Canzoni del cuore";
 }

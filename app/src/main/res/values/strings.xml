@@ -8,4 +8,21 @@
     <string name="favourite_songs">Canzoni del cuore</string>
     <string name="search_hint">Cerca</string>
     <string name="search_results">Risultati ricerca</string>
+    <string name="menu_add">Aggiungi a playlist</string>
+    <string name="menu_add_fav">Aggiungi ai preferiti</string>
+    <string name="menu_delete">Rimuovi brano</string>
+    <string name="deleted">Brano rimosso dai favoriti</string>
+    <string name="added">Brano aggiunto ai favoriti</string>
+    <string name="song_added">Brano aggiunto alla playlist</string>
+    <string name="song_removed">Brano rimosso dalla playlist</string>
+    <string name="create_palylist">Crea nuova playlist</string>
+    <string name="rename_palylist">Rinomina playlist</string>
+    <string name="palylist_renamed">Playlist rinominata</string>
+    <string name="palylist_deleted">Playlist eliminata</string>
+    <string name="cannot_delete_fav">Playlist non eliminabile</string>
+    <string name="plalylist_already_exists">Playlist già esistente</string>
+    <string name="song_already_addedd">Canzone già presente</string>
+    <string name="playlist_settings">Playlist settings</string>
+    <string name="rename_playlist">Rinomina playlist</string>
+    <string name="delete_playlist">Cancella playlist</string>
 </resources>

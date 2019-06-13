@@ -1,107 +1,71 @@
 package com.example.android.spotifanni;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
+import android.widget.EditText;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collection;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, AdapterView.OnItemClickListener,
-        SearchView.OnQueryTextListener {
-
-    private ArrayList<Playlist> playlists = new ArrayList<>();
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, SearchView.OnQueryTextListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        //Save playlist on internal storate
-        //savePlaylistInInternalStorage();
-
-        //Read playlist from internal storaged xml file
-        MyXMLManager xml = new MyXMLManager();
-        try {
-            //create my list
-            playlists = xml.parse(new FileInputStream(new File(getFilesDir(), "playlists.xml")));
-            //Set menu options - Add all saved playlists
-            setUpPlaylistsMenu();
-            setupSelectedPlaylist();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        //Set menu options - Add all saved playlists
+        setUpPlaylistsMenu();
+        Playlist playingPlaylist = Playlists.getInstance(this).getPlayingPlaylist();
+        reloadVideoList(playingPlaylist);
     }
 
-    public void setupSelectedPlaylist() {
-
-        ListView lv = (ListView) findViewById(R.id.currentPlaylistItems);
-        ArrayList<VideoItem> songs = null;
-        Playlist playingPlaylist = playlists.get(0);
-        for (Playlist p : playlists) {
-            if (p.isPlaying())
-            {
-                songs = p.getSongs();
-                playingPlaylist = p;
-            }
-        }
-
-        reloadVideoList(this, playingPlaylist);
-
-    }
-
-    public void savePlaylistInInternalStorage() {
-
-        MyXMLManager xml = new MyXMLManager();
-        xml.setPlaylists(playlists);
-        File file = new File(getFilesDir(), "playlists.xml");
-        xml.writeXml(file, playlists);
-
-    }
 
 
     public void setUpPlaylistsMenu() {
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         Menu menu = navigationView.getMenu();
-
+        menu.clear();
+        menu.add(0, 0, 0, getString(R.string.favourite_songs)).setIcon(R.drawable.ic_heart_black);
         SubMenu subMenu = menu.addSubMenu("Playlist");
         int i = 0;
-        for (Playlist p : playlists) {
-            if (!p.getName().equals(getString(R.string.favourite_songs))) {
-                subMenu.add(0, i++, 0, p.getName()).setIcon(R.drawable.ic_playlist);
+        Collection<Playlist> pl = Playlists.getInstance(this).getPlaylists().values();
+        for (Playlist pair : pl) {
+            if (!pair.getName().equals(getString(R.string.favourite_songs))) {
+                subMenu.add(0, i++, 0, pair.getName()).setIcon(R.drawable.ic_playlist);
             }
         }
     }
+
 
     @Override
     public void onBackPressed() {
@@ -113,13 +77,13 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private Menu mMenu;
+    public Menu mMenu;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-        mMenu=menu;
+        mMenu = menu;
 
         MenuItem searchItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) searchItem.getActionView();
@@ -129,38 +93,27 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-        ArrayList<VideoAdapter> songs = new ArrayList<>();
+
         Playlist playlist;
         if (id == R.id.favourites)
-            playlist = playlists.get(0);
+            playlist = Playlists.getInstance(this).getPlaylists().get(Config.FAVOURITE_SONGS);
         else
-            playlist = playlists.get(id + 1);
+            playlist = Playlists.getInstance(this).getPlaylists().get(item.getTitle());
 
-        reloadVideoList(this, playlist);
+        reloadVideoList(playlist);
         return true;
     }
 
-    private void reloadVideoList(MainActivity mainActivity, Playlist playlist) {
+    public void reloadVideoList(Playlist playlist) {
+        if(playlist==null || playlist.getSongs()==null)
+            return;
+
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.currentPlaylistItems);
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -170,7 +123,7 @@ public class MainActivity extends AppCompatActivity
 
         recyclerView.setLayoutManager(layoutManager);
         // specify an adapter (see also next example)
-        RecyclerView.Adapter mAdapter = new VideoAdapterRecycler(playlist.getSongs());
+        RecyclerView.Adapter mAdapter = new VideoAdapterRecycler(playlist.getSongs(), new OnItemClickListenerImpl(this),this);
         recyclerView.setAdapter(mAdapter);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -178,31 +131,80 @@ public class MainActivity extends AppCompatActivity
 
         TextView title = (TextView) findViewById(R.id.currentPlaylistTitle);
         title.setText(playlist.getName());
-    }
+        title.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
 
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        if(!title.getText().equals(getString(R.string.favourite_songs)))
+        {
+            final MainActivity act = this;
+            title.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_edit, 0);
+            title.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    final PopupMenu popup = new PopupMenu(act, findViewById(R.id.currentPlaylistTitle));
+                    Menu menu = popup.getMenu();
 
-        ListView lv = (ListView) findViewById(R.id.currentPlaylistItems);
-        for (int i = 0; i < lv.getAdapter().getCount(); i++) {
-            VideoItem song = (VideoItem) lv.getAdapter().getItem(i);
-            if (song.isPlaying()) {
-                //TODO Stop the music
-                //and put the play icon
-                Log.i("STOP!", "You clicked: " + song.getTitle() + " at position:" + i);
-                song.setPlaying(false);
-            } else {
-                if (i == position) {
-                    //TODO: PLAY THE SONG
-                    //and put the play icon
-                    Log.i("START!", "You clicked: " + song.getTitle() + " at position:" + position);
-                    song.setPlaying(true);
+                    // subMenu = menu.addSubMenu("Operazioni");
+                    menu.add(0,1, 1, getString(R.string.rename_playlist));
+                    menu.add(0,2, 2, getString(R.string.delete_playlist));
+
+                    //inflating menu from xml resource
+                    popup.inflate(R.menu.song_options_menu);
+                    //adding click listene
+                    popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            final String s = (String) item.getTitle();
+                            final Context context = getApplicationContext();
+
+                            switch (item.getItemId()) {
+                                case 1:
+                                    //Rename playlist
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(act);
+                                    builder.setTitle(getString(R.string.rename_palylist));
+                                    final EditText input = new EditText(context);
+                                    input.setInputType(InputType.TYPE_CLASS_TEXT);
+                                    builder.setView(input);
+                                    // Set up the buttons
+                                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            String newPlaylistTitle = input.getText().toString();
+                                            TextView tw = (TextView) findViewById(R.id.currentPlaylistTitle);
+                                            String oldPlaylistTitle = tw.getText().toString();
+                                            Playlists.getInstance(null).renamePlaylist(oldPlaylistTitle, newPlaylistTitle);
+                                            //tw.setText(newPlaylistTitle);
+                                            Toast.makeText(context, context.getString(R.string.palylist_renamed), Toast.LENGTH_SHORT).show();
+                                            reloadVideoList(Playlists.getInstance(null).getPlaylists().get(newPlaylistTitle));
+                                        }
+                                    });
+
+                                    builder.show();
+                                    break;
+                                case 2:
+                                    TextView tw = (TextView) findViewById(R.id.currentPlaylistTitle);
+                                    if(tw.getText().toString().equals(R.string.favourite_songs))
+                                    {
+                                        Toast.makeText(context, context.getString(R.string.cannot_delete_fav), Toast.LENGTH_SHORT).show();
+                                        break;
+                                    }
+                                    else {
+                                        Playlists.getInstance(null).deletePlaylist(tw.getText().toString());
+                                        reloadVideoList(Playlists.getInstance(null).getPlaylists().get(R.string.favourite_songs));
+                                        Toast.makeText(context, context.getString(R.string.palylist_deleted), Toast.LENGTH_SHORT).show();
+                                        setUpPlaylistsMenu();
+                                    }
+                                    break;
+                            }
+                            return true;
+
+                        };
+                    });
+                    //displaying the popup
+                    popup.show();
                 }
-
-            }
+            });
         }
     }
-
 
     @Override
     public boolean onQueryTextSubmit(String query) {
@@ -228,6 +230,5 @@ public class MainActivity extends AppCompatActivity
         //TODO SHOW SUGGESTIONS OR HISTORY
         return false;
     }
-
 
 }

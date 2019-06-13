@@ -12,6 +12,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 
 /**
  * Created by nicolo.mandrile on 24/05/2019.
@@ -19,30 +21,29 @@ import java.util.ArrayList;
 
 public class MyXMLManager {
 
-    ArrayList<Playlist> playlists;
+    HashMap<String, Playlist> playlists;
     private Playlist playlist;
     private String text;
 
     public MyXMLManager() {
-        playlists = new ArrayList<>();
+        playlists = new HashMap<String, Playlist>();
     }
 
-    public ArrayList<Playlist> getPlaylists() {
+    public HashMap<String, Playlist> getPlaylists() {
         return playlists;
     }
 
-    public void setPlaylists(ArrayList<Playlist> playlists) {
+    public void setPlaylists(HashMap<String, Playlist> playlists) {
         this.playlists = playlists;
     }
 
-    public ArrayList<Playlist> parse(InputStream is) {
+    public HashMap<String, Playlist> parse(InputStream is) {
 
         VideoItem song = new VideoItem();
         try {
             XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
             factory.setNamespaceAware(true);
             XmlPullParser parser = factory.newPullParser();
-
             parser.setInput(is, null);
 
             int eventType = parser.getEventType();
@@ -54,7 +55,6 @@ public class MyXMLManager {
                             // create a new instance of employee
                             playlist = new Playlist();
                             playlist.setSongs(new ArrayList<VideoItem>());
-                            playlists.add(playlist);
                         } else if (tagname.equalsIgnoreCase("Songs")) {
                             playlist.setSongs(new ArrayList<VideoItem>());
                         } else if (tagname.equalsIgnoreCase("Song")) {
@@ -71,6 +71,7 @@ public class MyXMLManager {
                         if (text != null)
                             if (tagname.equalsIgnoreCase("PlaylistName")) {
                                 playlist.setName(text);
+                                playlists.put(text, playlist);
                             } else if (tagname.equalsIgnoreCase("PlayListOrder")) {
                                 playlist.setOrder(Integer.parseInt(text));
                             } else if (tagname.equalsIgnoreCase("PlayListPlaying")) {
@@ -84,6 +85,8 @@ public class MyXMLManager {
                                 song.setOrder(Integer.valueOf(text));
                             } else if (tagname.equalsIgnoreCase("Playing")) {
                                 song.setPlaying(Boolean.valueOf(text));
+                            } else if (tagname.equalsIgnoreCase("IsFavourite")) {
+                                song.setFavourite(Boolean.valueOf(text));
                             }
                         break;
 
@@ -93,17 +96,17 @@ public class MyXMLManager {
                 eventType = parser.next();
             }
 
-        }  catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         } catch (XmlPullParserException e) {
-            //e.printStackTrace();
+            e.printStackTrace();
         }
 
         return playlists;
     }
 
 
-    public void writeXml(File file, ArrayList<Playlist> playlists) {
+    public void writeXml(File file, HashMap<String, Playlist> playlists) {
         FileOutputStream fos;
         try {
 
@@ -115,7 +118,9 @@ public class MyXMLManager {
             serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
 
             serializer.startTag(null, "Playlists");
-            for (Playlist p : playlists) {
+            Collection<Playlist> values = playlists.values();
+            for (Playlist p : values) {
+
                 serializer.startTag(null, "Playlist");
                 serializer.startTag(null, "PlaylistName");
                 serializer.text("" + p.getName());
@@ -144,6 +149,11 @@ public class MyXMLManager {
                     serializer.startTag(null, "SongId");
                     serializer.text("" + song.getId());
                     serializer.endTag(null, "SongId");
+                    serializer.startTag(null, "IsFavourite");
+                    if(p.getName().equals("Canzoni del cuore"))
+                        song.setFavourite(true);
+                    serializer.text("" + song.isFavourite());
+                    serializer.endTag(null, "IsFavourite");
                     serializer.endTag(null, "Song");
                 }
 

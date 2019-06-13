@@ -1,30 +1,42 @@
-<LinearLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout   xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal">
 
     <ImageView
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:textSize="16sp"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:padding="2dp"
         android:id="@+id/icon_id"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:id="@+id/title_id"/>
+        android:textSize="20sp"
+        android:id="@+id/title_id"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/icon_id"
+        android:layout_toEndOf="@+id/icon_id"
+        android:layout_marginLeft="26dp"
+        android:layout_marginStart="26dp" />
 
     <ImageView
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_weight = "1"
-        android:textSize="16sp"
-        android:id="@+id/add_id"/>
+        android:layout_width="24dp"
+        android:padding="2dp"
+        android:layout_height="24dp"
+        android:id="@+id/add_id"
+        android:layout_marginRight="55dp"
+        android:layout_marginEnd="55dp"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/order_id"
+        android:layout_toStartOf="@+id/order_id" />
+
     <ImageView
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_weight = "1"
-        android:textSize="16sp"
-        android:id="@+id/order_id"/>
-</LinearLayout>
+        android:layout_width="24dp"
+        android:padding="2dp"
+        android:layout_height="24dp"
+        android:id="@+id/order_id"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+</RelativeLayout >

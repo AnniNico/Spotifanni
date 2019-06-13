@@ -1,6 +1,5 @@
 package com.example.android.spotifanni;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.v4.view.GravityCompat;
@@ -36,12 +35,12 @@ public class YoutubeManager  extends AsyncTask<String, Void, List<VideoItem>> {
     //maximum results that should be downloaded via the YouTube data API at a time
     private static final long MAXRESULTS = 25;
 
-    WeakReference<Activity> mWeakActivity;
+    WeakReference<MainActivity> mWeakActivity;
 
     //Constructor to properly initialize Youtube's object
-    public YoutubeManager(Context context, Activity currentActivity) throws IOException {
+    public YoutubeManager(Context context, MainActivity currentActivity) throws IOException {
 
-        mWeakActivity = new WeakReference<Activity>(currentActivity);
+        mWeakActivity = new WeakReference<MainActivity>(currentActivity);
         youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), new HttpRequestInitializer() {
 
             @Override
@@ -102,11 +101,7 @@ public class YoutubeManager  extends AsyncTask<String, Void, List<VideoItem>> {
     @Override
     protected void onPostExecute(List<VideoItem> videoItems) {
         super.onPostExecute(videoItems);
-        /*final VideoAdapter adapter = new VideoAdapter(mWeakActivity.get().getApplicationContext(), R.layout.content_main, (ArrayList<VideoItem>) videoItems);
-        final ListView listView = (ListView) mWeakActivity.get().findViewById(R.id.currentPlaylistItems);
-        listView.setAdapter(null);
-        listView.setAdapter(adapter);
-        listView.setClickable(true);*/
+       
         RecyclerView recyclerView = (RecyclerView) mWeakActivity.get().findViewById(R.id.currentPlaylistItems);
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -115,10 +110,9 @@ public class YoutubeManager  extends AsyncTask<String, Void, List<VideoItem>> {
         // use a linear layout manager
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(mWeakActivity.get());
         recyclerView.setLayoutManager(layoutManager);
-        // specify an adapter (see also next example)
-        RecyclerView.Adapter mAdapter = new VideoAdapterRecycler(videoItems);
+        // specify an adapter
+        RecyclerView.Adapter mAdapter = new VideoAdapterRecycler(videoItems, new OnItemClickListenerImpl(mWeakActivity.get()), mWeakActivity.get());
         recyclerView.setAdapter(mAdapter);
-
         DrawerLayout drawer = (DrawerLayout) mWeakActivity.get().findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         TextView title = (TextView) mWeakActivity.get().findViewById(R.id.currentPlaylistTitle);

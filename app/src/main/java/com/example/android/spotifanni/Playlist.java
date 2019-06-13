@@ -19,7 +19,12 @@ public class Playlist {
     }
 
     public Playlist() {
+        songs = new ArrayList<>();
+    }
 
+    public Playlist(String name) {
+        this.name = name;
+        songs = new ArrayList<>();
     }
 
 
@@ -53,5 +58,21 @@ public class Playlist {
 
     public void setOrder(int order) {
         this.order = order;
+    }
+
+    public boolean contains(VideoItem video){
+        for(VideoItem s : songs)
+        {
+            if(s.getTitle().equals(video.getTitle()))
+                return true;
+        }
+        return false;
+    }
+
+    public void removeSong(VideoItem video) {
+        for(int i = 0 ; i< songs.size(); i++){
+            if(songs.get(i).getTitle().equals(video.getTitle()))
+                songs.remove(i);
+        }
     }
 }
